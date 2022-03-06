@@ -1,0 +1,508 @@
+Your storage is full. … You can't upload new files to Drive and may not be able to send or receive emails in Gmail.Learn more
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+
+void write_customer();
+void display_all();
+void display_sp();
+void modify_customer();
+void delete_customer();
+void admin_menu();
+void main_menu();
+void customer_menu();
+void booking();
+void cancel();
+void checkIn();
+void checkOut();
+void services_menu();
+void restaurant();
+void games();
+void swimming_pool();
+void gym();
+void taxi();
+void programs(void);
+
+struct customer
+{
+    int RoomNo;
+    char Name[50];
+    int Guests;
+    float BillAmt;
+    char CheckInDate[15];
+    char CheckOutDate[15];
+    char *program;
+};
+
+FILE *file;
+
+void input(struct customer *s)
+{
+    printf("\nENTER THE ROOM NUMBER: ");
+    scanf("%d", &s->RoomNo);
+    fflush(stdin);
+    printf("\nENTER YOUR NAME: ");
+    gets(s->Name);
+    printf("\nENTER THE NUMBER OF GUESTS: ");
+    scanf("%d", &s->Guests);
+    printf("\nENTER THE CHECK-IN DATE (dd/mm/yyyy): ");
+    gets(s->CheckInDate);
+    printf("\nENTER THE CHECK-OUT DATE (dd/mm/yyyy): ");
+    gets(s->CheckOutDate);
+} 
+
+void display(struct customer st)
+{
+    printf("\nROOM NUMBER : %d", st.RoomNo);
+    printf("\nNAME OF THE GUEST : %s", st.Name);
+    printf("\nNUMBER OF GUESTS : %d", st.Guests);
+    printf("\nCHECK-IN ON : %s", st.CheckInDate);
+    printf("\nCHECK-OUT ON : %s", st.CheckOutDate);
+    printf("\nTOTAL BILL AMOUNT: %0.2f", st.BillAmt);
+} 
+
+int main()
+{
+    system("cls");
+    struct customer data;
+    main_menu();
+    return 0;
+}
+
+void write_customer()
+{
+    struct customer data;
+    file = fopen("customer.dat", "ab");
+    printf("\n\nPLEASE ENTER THE CUSTOMER DETAILS: \n");
+    input(&data);
+    fwrite(&data, sizeof(data), 1, file);
+    fclose(file);
+    printf("\nWELCOME TO THE HOTEL!! ");
+    getch();
+}
+
+void display_all()
+{
+    struct customer data;
+    file = fopen("customer.dat", "rb+");
+    while ((fread(&data, sizeof(data), 1, file)) > 0)
+    {       
+            display(data);
+            
+    } 
+    
+    fclose(file);
+}
+
+void display_sp()
+{
+    struct customer data;
+    FILE *fptr;
+
+int found=0, room;
+fptr=fopen("customer.dat","rb");	
+if(fptr==NULL)
+{
+printf("File could not open");
+exit(0);
+}
+
+printf("\n ENTER THE ROOM NUMBER: ");
+scanf("%d",&room);
+
+while((fread(&data,sizeof(data),1,fptr)==1))
+{
+	
+	if(data.RoomNo == room)
+	{
+	found=1;
+	printf("\nRecord of Student With RollNo %d is as follows:",room);
+    printf("\n=======================");
+	
+	printf("\nRoll No:%d",data.RoomNo);
+	printf("\nName:%s",data.Name);
+	
+	printf("\n=======================");
+	
+	break;
+}
+}
+if(found==0)
+   printf("\n Record Not found in this file!");
+fclose(fptr);
+}
+
+void modify_customer()
+{
+    struct customer data;
+    int no, found = 0;
+
+    printf("\nTO MODIFY ");
+    printf("\nPLEASE ENTER THE ROOM NUMBER: ");
+    scanf("%d", &no);
+    file = fopen("customer.dat", "rb+");
+    while ((fread(&data, sizeof(data), 1, file)) > 0 && found == 0)
+    {
+        if (data.RoomNo == no)
+        {
+            display(data);
+            printf("\nPlease enter the new details of student \n");
+            input(&data);
+            fseek(file,  - (long)sizeof(data), 1);
+            fwrite(&data, sizeof(data), 1, file);
+            printf("\n CUSTOMER RECORD UPDATED!!");
+            found = 1;
+        } 
+    }
+    fclose(file);
+    if (found == 0)
+        printf("\nCUSTOMER RECORD NOT FOUND!! ");
+}
+
+void delete_customer()
+{
+    int no;
+    struct customer data;
+    FILE *file2;
+    printf("\n\nDELETE CUSTOMER RECORD");
+    printf("\nPLEASE ENTER THE ROOM NUMBER: ");
+    scanf("%d", &no);
+    file = fopen("customer.dat", "rb");
+    file2 = fopen("temp.dat", "wb");
+    rewind(file);
+    while ((fread(&data, sizeof(data), 1, file)) > 0)
+    {
+        if (data.RoomNo != no)
+        {
+            fwrite(&data, sizeof(data), 1, file2);
+        } 
+    }
+    fclose(file2);
+    fclose(file);
+    remove("customer.dat");
+    rename("temp.dat", "customer.dat");
+    printf("\nCUSTOMER RECORD DELETED.");
+}
+
+void main_menu()
+{
+    int choice;
+    do{
+        system("cls");
+        printf("\n\n\t\tWELCOME TO THE HOTEL");
+        printf("\n\t\t******************************");
+        printf("\n\n\t\t\tMAIN MENU");
+        printf("\n\n\t1. CUSTOMER MENU");
+        printf("\n\n\t2. ADMIN MENU");
+        printf("\n\n\t3. EXIT");
+        printf("\n\n\tENTER YOUR CHOICE: ");
+        scanf("%d", &choice);
+        system("cls");
+        switch (choice)
+            {
+            case 1: customer_menu();
+                    break;
+            case 2: admin_menu();
+                    break;
+            } 
+    }while(choice!=3);
+        if(choice==3)
+        {
+            printf("\n\n\t\tTHANK YOU");
+            exit(0);
+        }
+   
+}
+
+void customer_menu()
+{
+    int ch;
+    char ans;
+    do{
+        system("cls");
+        printf("\n\n\t\tWELCOME TO THE HOTEL");
+        printf("\n\t\t******************************");
+        printf("\n\n\t\t\tCUSTOMER MENU");
+        printf("\n\n\t1. BOOK A ROOM");
+        printf("\n\n\t2. CANCEL A BOOKING");
+        printf("\n\n\t3. CHECK-IN");
+        printf("\n\n\t4. CHECK-OUT");
+        printf("\n\n\t5. OTHER SERVICES");
+        printf("\n\n\t6. RETURN TO MAIN MENU");
+        printf("\n\n\tENTER YOUR CHOICE: ");
+        scanf("%d", &ch);
+        system("cls");
+        switch (ch)
+            {
+            case 1: booking();
+                    break;
+            case 2: cancel();
+                    break;
+            case 3: checkIn();
+                    break;
+            case 4: checkOut();
+                    break;
+            case 5: services_menu();
+                    break;
+            case 6: main_menu();
+                    break;
+            }
+        printf("\n\n\tDO YOU WISH TO CONTINUE? (Y/N): ");
+        scanf("%c", &ans);
+    }while(ans=='y' || ans=='Y');
+}
+
+void admin_menu()
+{   int num, ch, password;
+    char ans;
+    printf("ENTER PASSWORD: ");
+    scanf("%d", &password);
+    if(password==12345)
+    {
+        do{
+            system("cls");
+            printf("\n\n\t\tWELCOME TO THE HOTEL");
+            printf("\n\t\t******************************");
+            printf("\n\n\t\t\tADMIN MENU");
+            printf("\n\n\t1. ADD A CUSTOMER RECORD");
+            printf("\n\n\t2. MODIFY A CUSTOMER RECORD");
+            printf("\n\n\t3. DELETE A CUSTOMER RECORD");
+            printf("\n\n\t4. SEARCH A CUSTOMER RECORD");
+            printf("\n\n\t5. VIEW ALL CUSTOMER RECORDS");
+            printf("\n\n\t6. RETURN TO MAIN MENU");
+            printf("\n\n\tENTER YOUR CHOICE: ");
+            scanf("%d", &ch);
+            system("cls");
+            switch (ch)
+            {
+            case 1: write_customer();
+                    break;
+            case 2: modify_customer();
+                    break;
+            case 3: delete_customer();
+                    break;
+            case 4: display_sp();
+                    break;
+            case 5: display_all();
+                    break;
+            case 6: main_menu();
+                    break;
+            }
+            printf("\n\n\tDO YOU WISH TO CONTINUE? (Y/N): ");
+            scanf("%c", &ans);
+        }while(ans=='y' || ans=='Y');
+    }
+    else
+    {
+        printf("INVALID PASSWORD!!");
+        main_menu();
+    }
+}
+
+void services_menu()
+{
+    int ch;
+    char ans;
+    do{
+        system("cls");
+        printf("\n\n\t\t\t\tWELCOME TO THE HOTEL");
+        printf("\n*********");
+        printf("\n\n\t\t\tSERVICES MENU");
+        printf("\n\n\t1. RESTAURANT");
+        printf("\n\n\t2. GAMES");
+        printf("\n\n\t3. SWIMMING POOL");
+        printf("\n\n\t4. TAXI SERVICES");
+        printf("\n\n\t5. GYMNASIUM");
+        printf("\n\n\t6. SPECIAL PROGRAMS");
+        printf("\n\n\t7. RETURN TO MAIN MENU");
+        printf("\n\n\tENTER YOUR CHOICE: ");
+        scanf("%d", &ch);
+        system("cls");
+        switch (ch)
+            {
+            case 1: restaurant();
+                    break;
+            case 2: games();
+                    break;
+            case 3: swimming_pool();
+                    break;
+            case 4: taxi();
+                    break;
+            case 5: gym();
+                    break;
+            case 6: programs();
+                    break;
+            case 7: main_menu();
+                    break;
+            }
+        printf("\n\n\tDO YOU WISH TO CONTINUE? (Y/N): ");
+        scanf("%c", &ans);
+    }while(ans=='y' || ans=='Y');
+}
+
+void programs(void)
+{
+    system("cls");
+    struct customer data;
+    int flag = 0, num, p;
+    printf("\n\nPLEASE ENTER YOUR ROOM NUMBER: \n");
+    scanf("%d", &num);
+    file = fopen("customer.dat", "ab");
+    while ((fread(&data, sizeof(data), 1, file)) > 0)
+    {
+        if (data.RoomNo == num)
+        {
+            printf("\n\n\t 1.JUNGLE WALK \n\n\t 2.JUNGLE JEEP DRIVE\n\n\t 3.CANOE RIDE \n\n\t 4. CULTURAL SHOW \n\n\t5. RETURN");
+            printf("\n\n\tENTER YOUR CHOICE: ");
+            scanf("%d",&p);
+            switch(p)
+            {
+                case 1: printf("\n\n\tYOU CHOOSE JUNGLE WALK\n");
+                        printf("\n\n\tRS 1000/- HAS BEEN ADDED TO YOUR BILL AMOUNT");
+                        data.BillAmt += 1000;
+                        getch();
+                        services_menu();
+                        break;
+        
+                case 2: printf("\n\n\tYOU CHOOSE JUNGLE JEEP DRIVE\n");
+                        printf("\n\n\tRS 2000/- HAS BEEN ADDED TO YOUR BILL AMOUNT");
+                        data.BillAmt += 2000;
+                        getch();
+                        services_menu();
+                        break;
+        
+                case 3: printf("\n\n\tYOU CHOOSE CANOE RIDE\n");
+                        printf("\n\n\tRS 800/- HAS BEEN ADDED TO YOUR BILL AMOUNT");
+                        data.BillAmt += 2000;
+                        getch();
+                        services_menu();
+                        break;
+        
+                case 4: printf("\nYOU CHOOSE CULTURAL SHOW \n");
+                        printf("\n\n\tRS 1000/- HAS BEEN ADDED TO YOUR BILL AMOUNT");
+                        data.BillAmt+= 1000;
+                        getch();
+                        services_menu();
+                        break;
+            }
+            flag = 1;
+        } 
+    }
+    fclose(file);
+    if (flag == 0)
+    {
+        printf("\nCUSTOMER RECORD DOESN'T EXIST!!");
+        printf("\nPLEASE ENTER A VALID ROOM NUMBER AND TRY AGAIN!!");
+        getch();
+        services_menu();
+    }
+        
+    
+}
+
+void booking()
+{
+    system("cls");
+    struct customer data;
+    int type_of_rooms;
+    char ch,c;
+    printf("\n\n\tTYPES OF ROOMS AVAILABE: \n");
+    printf("\n\n\t1.BASIC ROOM     -      RS 1000/-\n\n\t2.MEDIUM ROOM     -      RS 2000/-\n\n\t3.DELUXE ROOM     -      RS 3000/-");
+    printf("ENTER YOUR CHOICE: ");
+    scanf("%d",&type_of_rooms);
+    fflush(stdin);
+    if(type_of_rooms==1)
+    {
+        printf("\nDO YOU WISH TO CONTINUE WITH THE BASIC ROOM? (Y/N): \n");
+        fflush(stdin);
+        scanf("%c",&c);
+        if(c=='y' || c=='Y')
+        {
+            system("cls");
+            printf("\nYOU CHOOSE A BASIC ROOM. ENJOY YOUR STAY\n");
+            printf("YOUR ROOM NUMBER IS 121");
+            data.RoomNo=121;
+            data.BillAmt+=1000;
+            getch();
+            customer_menu();
+        }
+        else
+        customer_menu();
+    }
+        
+    else if(type_of_rooms==2)
+    {
+        printf("\nDO YOU WISH TO CONTINUE WITH THE MEDIUM ROOM? (Y/N):\n");
+        fflush(stdin);
+        scanf("%c",&c);
+        if(c=='y' || c=='Y')
+        {
+            system("cls");
+            printf("\nYOU CHOOSE A MEDIUM ROOM. ENJOY YOUR STAY\n");
+            printf("YOUR ROOM NUMBER IS 212");
+            data.RoomNo=212;
+            data.BillAmt+=2000;
+            getch();
+            customer_menu();
+        }
+        else
+        customer_menu();
+    }
+        
+    else if(type_of_rooms==3)
+    {
+        printf("\nDO YOU WISH TO CONTINUE WITH THE DELUXE ROOM? (Y/N):\n");
+        fflush(stdin);
+        scanf("%c",&c);
+        if(c=='y')
+        {
+            system("cls");
+            printf("\nYOU CHOOSE A DELUXE ROOM. ENJOY YOUR STAY\n");
+            printf("YOUR ROOM NUMBER IS 312");
+            data.RoomNo=312;
+            data.BillAmt+=3000;
+            getch();
+            customer_menu();
+        }
+        else
+        customer_menu();
+    }
+        
+    else
+    customer_menu();
+}
+void cancel()
+{
+    system("cls");
+    struct customer data;
+    
+}
+void checkIn()
+{
+
+}
+void checkOut()
+{
+
+}
+
+void restaurant()
+{
+
+}
+void games()
+{
+
+}
+void swimming_pool()
+{
+
+}
+void gym()
+{
+
+}
+void taxi()
+{
+    
+}
